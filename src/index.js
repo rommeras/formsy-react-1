@@ -242,11 +242,13 @@ class Formsy extends React.Component {
     this.setFormPristine(false);
     const model = this.getModel();
     this.props.onSubmit(model, this.resetModel, this.updateInputsWithError);
-    if (this.state.isValid) {
-      this.props.onValidSubmit(model, this.resetModel, this.updateInputsWithError);
-    } else {
-      this.props.onInvalidSubmit(model, this.resetModel, this.updateInputsWithError);
-    }
+    this.validateForm(function () {
+        if (this.state.isValid) {
+          this.props.onValidSubmit(model, this.resetModel, this.updateInputsWithError);
+        } else {
+          this.props.onInvalidSubmit(model, this.resetModel, this.updateInputsWithError);
+        }
+    })
   }
 
   // Go through errors from server and grab the components
@@ -288,7 +290,7 @@ class Formsy extends React.Component {
 
   // Validate the form by going through all child input components
   // and check their state
-  validateForm = () => {
+  validateForm = (callback) => {
     // We need a callback as we are validating all inputs again. This will
     // run when the last component has set its state
     const onValidationComplete = () => {
@@ -296,7 +298,7 @@ class Formsy extends React.Component {
 
       this.setState({
         isValid: allIsValid,
-      });
+      }, callback);
 
       if (allIsValid) {
         this.props.onValid();
@@ -331,7 +333,8 @@ class Formsy extends React.Component {
     if (!this.inputs.length) {
       this.setState({
         canChange: true,
-      });
+        isValid: true
+      }, callback);
     }
   }
 
